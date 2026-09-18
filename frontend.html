@@ -1,0 +1,868 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NHT Certification — Call Audit Form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Product+Sans:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.bare.min.js"></script>
+<style>
+  :root{
+    --purple:#673ab7;
+    --purple-dark:#4c2b8f;
+    --purple-tint:#f3e8fd;
+    --bg:#f0ebf8;
+    --card:#ffffff;
+    --text:#202124;
+    --grey:#5f6368;
+    --border:#dadce0;
+    --red:#d93025;
+    --green:#188038;
+    --green-bg:#e6f4ea;
+    --amber:#b06000;
+    --amber-bg:#fef7e0;
+    --red-bg:#fce8e6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --purple:#9575cd; --purple-dark:#d1c4e9; --purple-tint:#2f2542;
+      --bg:#131318; --card:#1e1e24; --text:#e8eaed; --grey:#9aa0a6; --border:#3c3c43;
+      --red:#f28b82; --green:#81c995; --green-bg:#1e3a24;
+      --amber:#fdd663; --amber-bg:#3a2e0e; --red-bg:#3c1e1c;
+    }
+  }
+  :root[data-theme="dark"]{
+    --purple:#9575cd; --purple-dark:#d1c4e9; --purple-tint:#2f2542;
+    --bg:#131318; --card:#1e1e24; --text:#e8eaed; --grey:#9aa0a6; --border:#3c3c43;
+    --red:#f28b82; --green:#81c995; --green-bg:#1e3a24;
+    --amber:#fdd663; --amber-bg:#3a2e0e; --red-bg:#3c1e1c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    font-family:'Roboto',Arial,sans-serif;
+    color:var(--text);
+    min-height:100vh;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:24px 16px 80px;}
+
+  .tabbar{max-width:760px;margin:0 auto;padding:0 16px;display:flex;gap:8px;}
+  .tab{padding:14px 18px 12px;font-size:14px;font-weight:500;letter-spacing:.1px;
+    color:var(--grey);cursor:pointer;border-bottom:3px solid transparent;}
+  .tab.active{color:var(--purple-dark);border-bottom-color:var(--purple);}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;overflow:hidden;}
+  .card-strip{height:10px;background:var(--purple);}
+  .card-body{padding:24px 24px;}
+
+  .title-card h1{font-family:'Product Sans','Roboto',sans-serif;font-weight:400;font-size:28px;margin:0 0 8px;color:var(--text);}
+  .title-card p{margin:0;color:var(--grey);font-size:14px;line-height:1.5;}
+  .title-card .divider{border:none;border-top:1px solid var(--border);margin:20px 0 4px;}
+  .required-note{font-size:12px;color:var(--red);margin-top:8px;}
+
+  .q-title{font-size:15px;font-weight:400;margin:0 0 4px;}
+  .q-title .star{color:var(--red);margin-left:2px;}
+  .q-weight{float:right;font-size:12px;color:var(--grey);font-weight:400;}
+
+  label.field-label{display:block;font-size:15px;margin-bottom:8px;}
+  input[type=text], input[type=date], select, textarea{
+    width:100%;font-family:inherit;font-size:14px;
+    border:none;border-bottom:1px solid var(--border);
+    padding:8px 2px;background:transparent;color:var(--text);outline:none;
+  }
+  input[type=text]:focus, input[type=date]:focus, select:focus, textarea:focus{border-bottom:2px solid var(--purple);}
+  textarea{border:1px solid var(--border);border-radius:4px;padding:8px;resize:vertical;min-height:44px;}
+  select option{color:#000;}
+  .field{margin-bottom:22px;}
+  .err{color:var(--red);font-size:12px;margin-top:6px;display:none;}
+  .field.invalid input,.field.invalid select{border-bottom-color:var(--red);}
+  .field.invalid .err{display:block;}
+
+  .radio-row{display:flex;align-items:center;gap:14px;padding:9px 4px;border-radius:4px;cursor:pointer;}
+  .radio-row:hover{background:rgba(103,58,183,.06);}
+  .radio-row input{accent-color:var(--purple);width:18px;height:18px;cursor:pointer;}
+  .radio-row span{font-size:14px;}
+  .radio-row.fatal-opt span{color:var(--red);font-weight:500;}
+
+  .reason-box{display:none;margin-top:10px;padding-left:2px;}
+  .reason-box.show{display:block;}
+  .reason-box label{font-size:12px;color:var(--grey);display:block;margin-bottom:4px;}
+
+  .newproj-row{display:flex;gap:8px;align-items:center;margin-top:6px;}
+  .newproj-row input{flex:1;}
+  .link-btn{background:none;border:none;color:var(--purple-dark);font-size:13px;font-weight:500;cursor:pointer;padding:6px 0;text-align:left;}
+  .link-btn:hover{text-decoration:underline;}
+
+  .attempt-banner{font-size:13px;padding:10px 14px;border-radius:4px;margin-top:10px;}
+  .attempt-banner.ok{background:var(--purple-tint);color:var(--purple-dark);}
+  .attempt-banner.blocked{background:var(--red-bg);color:var(--red);}
+
+  .btn{font-family:inherit;font-size:14px;font-weight:500;border:none;border-radius:4px;padding:10px 24px;cursor:pointer;}
+  .btn-primary{background:var(--purple);color:#fff;}
+  .btn-primary:hover{background:var(--purple-dark);}
+  .btn-primary:disabled{background:#c7c2d6;cursor:not-allowed;}
+  .btn-text{background:none;color:var(--purple-dark);}
+  .btn-text:hover{text-decoration:underline;}
+  .btn-outline{background:none;border:1px solid var(--purple);color:var(--purple-dark);}
+  .btn-outline:hover{background:var(--purple-tint);}
+  .btn-outline:disabled{opacity:.5;cursor:not-allowed;}
+
+  .live-score{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-radius:8px;background:var(--purple-tint);margin-bottom:16px;}
+  .live-score .num{font-size:24px;font-weight:500;color:var(--purple-dark);}
+  .live-score .lbl{font-size:12px;color:var(--grey);}
+  .live-score.certified{background:var(--green-bg);}.live-score.certified .num{color:var(--green);}
+  .live-score.recert{background:var(--amber-bg);}.live-score.recert .num{color:var(--amber);}
+  .live-score.notcert{background:var(--red-bg);}.live-score.notcert .num{color:var(--red);}
+
+  .submitrow{display:flex;justify-content:flex-end;align-items:center;gap:14px;}
+
+  .confirm-card{text-align:center;padding:48px 24px;}
+  .checkmark{width:64px;height:64px;border-radius:50%;background:var(--green-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+  .checkmark svg{width:34px;height:34px;}
+  .confirm-card h2{font-weight:400;font-family:'Product Sans','Roboto',sans-serif;font-size:22px;margin:0 0 6px;}
+  .score-badge{display:inline-block;margin-top:18px;padding:14px 28px;border-radius:8px;font-size:15px;}
+  .score-badge b{font-size:26px;display:block;}
+  .badge-certified{background:var(--green-bg);color:var(--green);}
+  .badge-recert{background:var(--amber-bg);color:var(--amber);}
+  .badge-notcert{background:var(--red-bg);color:var(--red);}
+  .confirm-actions{margin-top:28px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+
+  .summary-strip{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+  .stat{flex:1;min-width:130px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center;}
+  .stat .num{font-size:26px;font-weight:500;}
+  .stat .lbl{font-size:12px;color:var(--grey);margin-top:2px;}
+  .stat.certified .num{color:var(--green);}
+  .stat.recert .num{color:var(--amber);}
+  .stat.notcert .num{color:var(--red);}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);}
+  th{color:var(--grey);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.3px;}
+  .pill{padding:3px 10px;border-radius:12px;font-size:12px;font-weight:500;display:inline-block;}
+  .pill-certified{background:var(--green-bg);color:var(--green);}
+  .pill-recert{background:var(--amber-bg);color:var(--amber);}
+  .pill-notcert{background:var(--red-bg);color:var(--red);}
+  .pill-pending{background:#f1f3f4;color:var(--grey);}
+
+  .qbar-row{margin-bottom:14px;}
+  .qbar-row .qtext{font-size:13px;margin-bottom:6px;}
+  .qbar-track{height:20px;background:#f1f3f4;border-radius:4px;overflow:hidden;display:flex;}
+  .qbar-yes{background:var(--purple);height:100%;}
+  .qbar-no{background:#d1c4e9;height:100%;}
+  .qbar-fatal{background:var(--red);height:100%;}
+  .qbar-legend{font-size:11px;color:var(--grey);margin-top:4px;}
+
+  .empty{color:var(--grey);font-size:13px;padding:24px;text-align:center;}
+  .filterrow{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+  .filterrow select{width:auto;border:1px solid var(--border);border-radius:4px;padding:8px 10px;}
+  .danger-link{color:var(--red);font-size:12px;background:none;border:none;cursor:pointer;}
+  .section-label{font-size:13px;font-weight:500;color:var(--purple-dark);margin:26px 0 4px;text-transform:uppercase;letter-spacing:.4px;}
+  .download-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px;}
+  .download-note{font-size:12px;color:var(--grey);}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--card);
+    padding:10px 18px;border-radius:6px;font-size:13px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s;}
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<div class="tabbar">
+  <div class="tab active" id="tabQuestions" onclick="showView('form')">Questions</div>
+  <div class="tab" id="tabResponses" onclick="showView('responses')">Responses</div>
+</div>
+
+<div class="wrap" id="formWrap">
+
+  <div class="card title-card"><div class="card-strip"></div>
+    <div class="card-body">
+      <h1>NHT Certification — Call Audit</h1>
+      <p>Log a certification call audit below. Score, attempt number and certification result
+      calculate automatically. Each agent gets up to two attempts per certification project —
+      80 or above is Certified. Marking any parameter <b>Fatal</b> sends the whole attempt's
+      score to 0.</p>
+      <hr class="divider">
+      <p class="required-note">* Required</p>
+    </div>
+  </div>
+
+  <div class="card"><div class="card-strip"></div><div class="card-body">
+    <label class="field-label">Certification project <span class="star">*</span></label>
+    <div class="field" id="f-project">
+      <select id="projectSelect" onchange="onProjectChange()"><option value="">Choose</option></select>
+      <div class="err">Please select a certification project.</div>
+    </div>
+    <button type="button" class="link-btn" id="addProjBtn" onclick="toggleNewProject()">+ Add new certification project</button>
+    <div id="newProjRow" style="display:none;margin-top:10px;">
+      <div class="newproj-row"><input type="text" id="newProjName" placeholder="Project name (e.g. NHT Certification – Sep'26)"></div>
+      <div class="newproj-row">
+        <input type="text" id="newProjLocation" placeholder="Location">
+        <button type="button" class="btn btn-text" onclick="createProject()">Create</button>
+      </div>
+    </div>
+  </div></div>
+
+  <div class="card"><div class="card-strip"></div><div class="card-body">
+    <label class="field-label">QA name <span class="star">*</span></label>
+    <div class="field" id="f-qa"><input type="text" id="qaName" placeholder="Your answer"><div class="err">This is a required question.</div></div>
+    <label class="field-label">Location <span class="star">*</span></label>
+    <div class="field" id="f-loc"><input type="text" id="location" placeholder="Your answer"><div class="err">This is a required question.</div></div>
+    <label class="field-label">Call audit date <span class="star">*</span></label>
+    <div class="field" id="f-date"><input type="date" id="auditDate"><div class="err">This is a required question.</div></div>
+  </div></div>
+
+  <div class="card"><div class="card-strip"></div><div class="card-body">
+    <label class="field-label">Agent name <span class="star">*</span></label>
+    <div class="field" id="f-agent"><input type="text" id="agentName" placeholder="Your answer"><div class="err">This is a required question.</div></div>
+    <label class="field-label">Profile ID <span class="star">*</span></label>
+    <div class="field" id="f-profile"><input type="text" id="profileId" placeholder="Your answer" oninput="refreshAttemptBanner()"><div class="err">This is a required question.</div></div>
+    <div id="attemptBanner"></div>
+  </div></div>
+
+  <div class="section-label">Call audit parameters</div>
+  <div id="questionCards"></div>
+
+  <div class="live-score" id="liveScoreBox">
+    <div><div class="num" id="liveScore">—</div><div class="lbl">Calculated score out of 100</div></div>
+    <div class="lbl" id="liveResultLbl">Answer every parameter to see the result</div>
+  </div>
+
+  <div class="submitrow">
+    <button class="btn btn-primary" id="submitBtn" onclick="submitForm()">Submit</button>
+  </div>
+
+  <div id="confirmSection" style="display:none;">
+    <div class="card confirm-card"><div class="card-strip"></div>
+      <div class="card-body">
+        <div class="checkmark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#188038" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h2>Your response has been recorded</h2>
+        <p style="color:var(--grey);font-size:14px;" id="confirmSub"></p>
+        <div class="score-badge" id="scoreBadge"><b id="confirmScore">—</b><span id="confirmResult"></span></div>
+        <div class="confirm-actions">
+          <button class="btn btn-primary" onclick="resetForm()">Submit another response</button>
+          <button class="btn btn-text" onclick="showView('responses')">View summary</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="wrap" id="responsesWrap" style="display:none;">
+  <div class="card title-card"><div class="card-strip"></div>
+    <div class="card-body">
+      <h1>Responses</h1>
+      <p>Live certification tracker, built automatically from every submitted audit.
+      Responses are shared — everyone who opens this form sees the same data.</p>
+    </div>
+  </div>
+
+  <div class="card"><div class="card-strip"></div><div class="card-body">
+    <div class="download-row">
+      <button class="btn btn-outline" id="downloadBtn" onclick="downloadOriginalFormatReport()">⬇ Download report (original sheet format)</button>
+      <span class="download-note">Rebuilds Sheet1 / Sheet2 exactly as the sheet you first uploaded — same merged headers, same Reason Description / Reason Comments columns, and the same Bitstream Charter font — filled with everything submitted so far.</span>
+    </div>
+  </div></div>
+
+  <div class="filterrow">
+    <label style="font-size:13px;color:var(--grey);">Project:</label>
+    <select id="filterProject" onchange="renderResponses()"><option value="">All projects</option></select>
+    <button class="danger-link" onclick="clearAllData()" style="margin-left:auto;">Clear all data</button>
+  </div>
+
+  <div class="summary-strip" id="summaryStrip"></div>
+
+  <div class="card"><div class="card-strip"></div><div class="card-body">
+    <h2 style="font-weight:400;font-family:'Product Sans','Roboto',sans-serif;font-size:16px;margin-top:0;">Certification tracker — by agent</h2>
+    <div style="overflow-x:auto;"><table id="trackerTable"><thead><tr>
+      <th>Project</th><th>Agent</th><th>Profile ID</th><th>Attempt 1</th><th>Attempt 2</th><th>Final status</th>
+    </tr></thead><tbody></tbody></table></div>
+    <div class="empty" id="trackerEmpty" style="display:none;">No responses yet — submit the form to see agents appear here.</div>
+  </div></div>
+
+  <div class="card"><div class="card-strip"></div><div class="card-body">
+    <h2 style="font-weight:400;font-family:'Product Sans','Roboto',sans-serif;font-size:16px;margin-top:0;">Answers per question</h2>
+    <div id="questionBars"></div>
+  </div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const QUESTIONS = [
+  {cat:"Effective communication", text:"Did the advisor used appropriate language and displayed professionalism throughout the call ?", w:10},
+  {cat:"Effective communication", text:"The advisor attentively listened and understood the members concerns?", w:10},
+  {cat:"Being Consultative", text:"Advisor need to be more conversational", w:15},
+  {cat:"Being Consultative", text:"Probe to know the need of the customer", w:15},
+  {cat:"Being Consultative", text:"Did the advisor highlight & ellaborate on the benefits of the membership?", w:15},
+  {cat:"Solving Problems", text:"Did the advisor understand and acknowledge all members queries & objections and gave appropriate resolution", w:10},
+  {cat:"Solving Problems", text:"Did the advisor create urgency for payment?", w:10},
+  {cat:"Process Compliance", text:"Did the advisor dispose the call correctly?", w:10},
+  {cat:"Process Compliance", text:"Did the advisor schedule & follow-up on appropriate date & time?", w:5},
+];
+
+let projects = [];
+let submissions = [];
+let dbCap = null;
+let downloadsCap = null;
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+async function initCapabilities(){
+    const btn = document.getElementById('downloadBtn');
+    if(typeof ExcelJS === 'undefined'){
+        btn.disabled = true;
+        btn.title = 'The Excel export library failed to load — check your internet connection.';
+    } else {
+        btn.disabled = false;
+        btn.title = '';
+    }
+}
+
+async function loadAll(){
+    try {
+        const projRes = await fetch('http://localhost:8000/api/projects');
+        projects = await projRes.json();
+    } catch(e) {
+        projects = [];
+    }
+
+    try {
+        const subRes = await fetch('http://localhost:8000/api/submissions');
+        submissions = await subRes.json();
+    } catch(e) {
+        submissions = [];
+    }
+
+    if(projects.length === 0){
+        projects = [{id: uid(), name: "NHT Certification - 25th Aug'26", location: "Chennai"}];
+        // Automatically save the default project to backend
+        await saveProjects(projects[0]);
+    }
+    renderProjectOptions();
+}
+
+async function saveProjects(projectData){
+    try {
+        await fetch('http://localhost:8000/api/projects', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(projectData || projects[projects.length - 1])
+        });
+    } catch(e) {
+        console.error('save projects failed', e);
+        showToast('Could not save project — try again');
+    }
+}
+async function saveSubmissions(){
+    if(submissions.length === 0) return;
+    const latestSub = submissions[submissions.length - 1];
+    try {
+        await fetch('http://localhost:8000/api/submissions', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(latestSub)
+        });
+    } catch(e) {
+        console.error('save submission failed', e);
+        showToast('Could not save submission — try again');
+    }
+}
+
+function renderProjectOptions(){
+  const sel = document.getElementById('projectSelect');
+  const filt = document.getElementById('filterProject');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Choose</option>' + projects.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+  filt.innerHTML = '<option value="">All projects</option>' + projects.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+  if(cur) sel.value = cur;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function toggleNewProject(){
+  const row = document.getElementById('newProjRow');
+  row.style.display = row.style.display === 'none' ? 'block' : 'none';
+}
+
+async function createProject(){
+  const name = document.getElementById('newProjName').value.trim();
+  const location = document.getElementById('newProjLocation').value.trim();
+  if(!name){ document.getElementById('newProjName').focus(); return; }
+  const p = {id: uid(), name, location};
+  projects.push(p);
+  await saveProjects();
+  renderProjectOptions();
+  document.getElementById('projectSelect').value = p.id;
+  document.getElementById('newProjName').value = '';
+  document.getElementById('newProjLocation').value = '';
+  document.getElementById('newProjRow').style.display = 'none';
+  onProjectChange();
+}
+
+function onProjectChange(){ clearFieldError('f-project'); refreshAttemptBanner(); }
+
+function attemptInfoFor(projectId, profileId){
+  const list = submissions.filter(s => s.projectId === projectId && s.profileId.toLowerCase() === profileId.toLowerCase());
+  return {count: list.length, list};
+}
+
+function refreshAttemptBanner(){
+  const projectId = document.getElementById('projectSelect').value;
+  const profileId = document.getElementById('profileId').value.trim();
+  const el = document.getElementById('attemptBanner');
+  if(!projectId || !profileId){ el.innerHTML=''; return; }
+  const {count} = attemptInfoFor(projectId, profileId);
+  if(count >= 2){
+    el.innerHTML = `<div class="attempt-banner blocked">This agent has already used both attempts for this project — no further attempts allowed.</div>`;
+  } else {
+    el.innerHTML = `<div class="attempt-banner ok">This will be recorded as Attempt ${count+1} of 2 for this agent.</div>`;
+  }
+}
+
+function buildQuestionCards(){
+  const wrap = document.getElementById('questionCards');
+  wrap.innerHTML = QUESTIONS.map((q,i)=>`<div class="card"><div class="card-strip"></div><div class="card-body">
+      <div class="q-weight">${q.w} pts</div>
+      <p class="q-title">${escapeHtml(q.text)}<span class="star">*</span></p>
+      <div class="field" id="f-q${i}">
+        <label class="radio-row"><input type="radio" name="q${i}" value="Yes" onclick="onAnswer(${i})"><span>Yes</span></label>
+        <label class="radio-row"><input type="radio" name="q${i}" value="No" onclick="onAnswer(${i})"><span>No</span></label>
+        <label class="radio-row fatal-opt"><input type="radio" name="q${i}" value="Fatal" onclick="onAnswer(${i})"><span>Fatal</span></label>
+        <div class="err">This is a required question.</div>
+        <div class="reason-box" id="reasonBox${i}">
+          <label for="reason${i}">Reason / comment</label>
+          <textarea id="reason${i}" rows="2" placeholder="Why was this scored No / Fatal?"></textarea>
+        </div>
+      </div>
+    </div></div>`).join('');
+}
+
+function onAnswer(i){
+  clearFieldError('f-q'+i);
+  const val = document.querySelector(`input[name="q${i}"]:checked`)?.value;
+  document.getElementById('reasonBox'+i).classList.toggle('show', val === 'No' || val === 'Fatal');
+  refreshLiveScore();
+}
+
+function clearFieldError(id){ document.getElementById(id).classList.remove('invalid'); }
+
+function currentAnswers(){
+  return QUESTIONS.map((q,i)=>{
+    const checked = document.querySelector(`input[name="q${i}"]:checked`);
+    return checked ? checked.value : null;
+  });
+}
+function currentReasons(){ return QUESTIONS.map((q,i)=> document.getElementById('reason'+i).value.trim()); }
+
+function computeScore(answers){
+  if(answers.some(a => a === 'Fatal')) return 0;
+  return QUESTIONS.reduce((sum,q,i)=> sum + (answers[i]==='Yes' ? q.w : 0), 0);
+}
+
+function refreshLiveScore(){
+  const answers = currentAnswers();
+  const box = document.getElementById('liveScoreBox');
+  const scoreEl = document.getElementById('liveScore');
+  const lblEl = document.getElementById('liveResultLbl');
+  if(answers.every(a => a === null)){
+    scoreEl.textContent = '—'; lblEl.textContent = 'Answer every parameter to see the result'; box.className = 'live-score'; return;
+  }
+  const score = computeScore(answers);
+  scoreEl.textContent = score;
+  const projectId = document.getElementById('projectSelect').value;
+  const profileId = document.getElementById('profileId').value.trim();
+  const {count} = projectId && profileId ? attemptInfoFor(projectId, profileId) : {count:0};
+  const attempt = count + 1;
+  const result = score>=80 ? 'Certified' : (attempt===1 ? 'Re-Certification Required' : 'Not Certified');
+  lblEl.textContent = 'Result: ' + result;
+  box.className = 'live-score ' + (result==='Certified' ? 'certified' : (result==='Re-Certification Required' ? 'recert' : 'notcert'));
+}
+
+function validateAll(){
+  let ok = true;
+  const checks = [
+    ['f-project', document.getElementById('projectSelect').value],
+    ['f-qa', document.getElementById('qaName').value.trim()],
+    ['f-loc', document.getElementById('location').value.trim()],
+    ['f-date', document.getElementById('auditDate').value],
+    ['f-agent', document.getElementById('agentName').value.trim()],
+    ['f-profile', document.getElementById('profileId').value.trim()],
+  ];
+  checks.forEach(([id,val])=>{
+    const field = document.getElementById(id);
+    if(!val){ field.classList.add('invalid'); ok = false; } else field.classList.remove('invalid');
+  });
+  QUESTIONS.forEach((q,i)=>{
+    const checked = document.querySelector(`input[name="q${i}"]:checked`);
+    const field = document.getElementById('f-q'+i);
+    if(!checked){ field.classList.add('invalid'); ok=false; } else field.classList.remove('invalid');
+  });
+  if(ok){
+    const {count} = attemptInfoFor(document.getElementById('projectSelect').value, document.getElementById('profileId').value.trim());
+    if(count >= 2) ok = false;
+  }
+  return ok;
+}
+
+async function submitForm(){
+  if(!validateAll()){
+    const firstInvalid = document.querySelector('.field.invalid');
+    if(firstInvalid) firstInvalid.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  const answers = currentAnswers();
+  const reasons = currentReasons();
+  const score = computeScore(answers);
+  const projectId = document.getElementById('projectSelect').value;
+  const projectName = document.getElementById('projectSelect').selectedOptions[0]?.text || '';
+  const profileId = document.getElementById('profileId').value.trim();
+  const {count} = attemptInfoFor(projectId, profileId);
+  const attempt = count + 1;
+  const result = score>=80 ? 'Certified' : (attempt===1 ? 'Re-Certification Required' : 'Not Certified');
+
+  const record = {
+    id: uid(), projectId, projectName,
+    qaName: document.getElementById('qaName').value.trim(),
+    location: document.getElementById('location').value.trim(),
+    auditDate: document.getElementById('auditDate').value,
+    agentName: document.getElementById('agentName').value.trim(),
+    profileId, attempt, answers, reasons, score, result,
+    timestamp: new Date().toISOString(),
+  };
+  submissions.push(record);
+  await saveSubmissions();
+
+  document.getElementById('confirmSection').style.display = 'block';
+  [...document.querySelectorAll('#formWrap > .card')].forEach(c=>{ c.style.display = 'none'; });
+  document.getElementById('confirmSection').style.display = 'block';
+  document.getElementById('liveScoreBox').style.display = 'none';
+  document.getElementById('questionCards').style.display = 'none';
+  document.querySelector('.submitrow').style.display = 'none';
+  document.querySelector('.section-label').style.display = 'none';
+
+  document.getElementById('confirmSub').textContent = `${record.agentName} — ${projectName} — Attempt ${attempt} of 2`;
+  document.getElementById('confirmScore').textContent = score + ' / 100';
+  const resEl = document.getElementById('confirmResult');
+  const badge = document.getElementById('scoreBadge');
+  resEl.textContent = result;
+  badge.className = 'score-badge ' + (result==='Certified' ? 'badge-certified' : (result==='Re-Certification Required' ? 'badge-recert' : 'badge-notcert'));
+  btn.disabled = false;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function resetForm(){
+  document.getElementById('confirmSection').style.display = 'none';
+  document.getElementById('qaName').value='';
+  document.getElementById('location').value='';
+  document.getElementById('auditDate').value='';
+  document.getElementById('agentName').value='';
+  document.getElementById('profileId').value='';
+  QUESTIONS.forEach((q,i)=>{
+    document.getElementsByName('q'+i).forEach(el=>el.checked=false);
+    document.getElementById('reason'+i).value='';
+    document.getElementById('reasonBox'+i).classList.remove('show');
+    document.getElementById('f-q'+i).classList.remove('invalid');
+  });
+  document.getElementById('attemptBanner').innerHTML='';
+  refreshLiveScore();
+  [...document.querySelectorAll('#formWrap > .card')].forEach(c=> c.style.display = 'block');
+  document.getElementById('confirmSection').style.display = 'none';
+  document.getElementById('liveScoreBox').style.display = 'flex';
+  document.getElementById('questionCards').style.display = 'block';
+  document.querySelector('.submitrow').style.display = 'flex';
+  document.querySelector('.section-label').style.display = 'block';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ---------- RESPONSES VIEW ----------
+function showView(view){
+  document.getElementById('formWrap').style.display = view==='form' ? 'block':'none';
+  document.getElementById('responsesWrap').style.display = view==='responses' ? 'block':'none';
+  document.getElementById('tabQuestions').classList.toggle('active', view==='form');
+  document.getElementById('tabResponses').classList.toggle('active', view==='responses');
+  if(view==='responses') renderResponses();
+}
+
+function statusPill(status){
+  const map = {'Certified':'pill-certified','Re-Certification Pending':'pill-recert','Not Certified':'pill-notcert'};
+  return `<span class="pill ${map[status]||'pill-pending'}">${status}</span>`;
+}
+
+function buildTracker(filterProjectId){
+  const rows = filterProjectId ? submissions.filter(s=>s.projectId===filterProjectId) : submissions;
+  const groups = {};
+  rows.forEach(s=>{
+    const key = s.projectId + '|' + s.profileId.toLowerCase();
+    if(!groups[key]) groups[key] = {projectName:s.projectName, profileId:s.profileId, agentName:s.agentName, attempts:{}};
+    groups[key].attempts[s.attempt] = s;
+  });
+  return Object.values(groups).map(g=>{
+    const a1 = g.attempts[1], a2 = g.attempts[2];
+    let final;
+    if(!a1) final = 'Not Started';
+    else if(a1.score>=80) final = 'Certified';
+    else if(!a2) final = 'Re-Certification Pending';
+    else final = (a2.score>=80) ? 'Certified' : 'Not Certified';
+    return {...g, a1, a2, final};
+  });
+}
+
+function renderResponses(){
+  const filterId = document.getElementById('filterProject').value;
+  const tracker = buildTracker(filterId);
+  const total = tracker.length;
+  const certified = tracker.filter(t=>t.final==='Certified').length;
+  const recert = tracker.filter(t=>t.final==='Re-Certification Pending').length;
+  const notcert = tracker.filter(t=>t.final==='Not Certified').length;
+
+  document.getElementById('summaryStrip').innerHTML = `
+    <div class="stat"><div class="num">${total}</div><div class="lbl">Agents audited</div></div>
+    <div class="stat certified"><div class="num">${certified}</div><div class="lbl">Certified</div></div>
+    <div class="stat recert"><div class="num">${recert}</div><div class="lbl">Re-Certification pending</div></div>
+    <div class="stat notcert"><div class="num">${notcert}</div><div class="lbl">Not certified</div></div>
+  `;
+
+  const tbody = document.querySelector('#trackerTable tbody');
+  document.getElementById('trackerEmpty').style.display = tracker.length ? 'none' : 'block';
+  tbody.innerHTML = tracker.map(t=>{
+    const a1 = t.a1 ? `${t.a1.score} — ${t.a1.result}` : '—';
+    const a2 = t.a2 ? `${t.a2.score} — ${t.a2.result}` : (t.a1 && t.a1.score<80 ? 'Pending' : '—');
+    return `<tr><td>${escapeHtml(t.projectName)}</td><td>${escapeHtml(t.agentName)}</td><td>${escapeHtml(t.profileId)}</td>
+      <td>${escapeHtml(a1)}</td><td>${escapeHtml(a2)}</td><td>${statusPill(t.final)}</td></tr>`;
+  }).join('');
+
+  const rows = filterId ? submissions.filter(s=>s.projectId===filterId) : submissions;
+  const qWrap = document.getElementById('questionBars');
+  if(rows.length===0){
+    qWrap.innerHTML = '<div class="empty">No responses yet.</div>';
+  } else {
+    qWrap.innerHTML = QUESTIONS.map((q,i)=>{
+      const yes = rows.filter(r=>r.answers[i]==='Yes').length;
+      const no = rows.filter(r=>r.answers[i]==='No').length;
+      const fatal = rows.filter(r=>r.answers[i]==='Fatal').length;
+      const n = rows.length;
+      const yesPct = Math.round(yes/n*100), noPct = Math.round(no/n*100), fatalPct = 100-yesPct-noPct;
+      return `<div class="qbar-row"><div class="qtext">${escapeHtml(q.text)}</div>
+        <div class="qbar-track"><div class="qbar-yes" style="width:${yesPct}%"></div><div class="qbar-no" style="width:${noPct}%"></div><div class="qbar-fatal" style="width:${fatalPct}%"></div></div>
+        <div class="qbar-legend">Yes ${yes} · No ${no} · Fatal ${fatal}</div></div>`;
+    }).join('');
+  }
+}
+
+async function clearAllData(){
+    if(!confirm('This deletes all submitted responses from the database. Continue?')) return;
+    try {
+        await fetch('http://localhost:8000/api/submissions', { method: 'DELETE' });
+        submissions = [];
+        renderResponses();
+        showToast('All data cleared.');
+    } catch(e) {
+        showToast('Could not clear data.');
+    }
+}
+
+// ---------- ORIGINAL-FORMAT EXCEL EXPORT (fonts/fills/borders match the uploaded sample exactly) ----------
+const FONT = 'Bitstream Charter';
+const BLACK = {argb:'FF000000'};
+const CENTER_WRAP = {vertical:'middle', horizontal:'center', wrapText:true};
+const CENTER = {vertical:'middle', horizontal:'center'};
+const HAIR = {style:'hair'};
+const THIN = {style:'thin'};
+function fillStyle(argb){ return {type:'pattern', pattern:'solid', fgColor:{argb}}; }
+function borderAll(style){ return {top:style, bottom:style, left:style, right:style}; }
+
+function fmtDate(iso){
+  if(!iso) return null;
+  const d = new Date(iso + 'T00:00:00');
+  return isNaN(d) ? null : d;
+}
+
+function styleCell(cell, opts){
+  opts = opts || {};
+  cell.font = Object.assign({name:FONT, size:11, bold:false, color:BLACK}, opts.font||{});
+  if(opts.fillColor) cell.fill = fillStyle(opts.fillColor);
+  cell.alignment = opts.align || CENTER;
+  if(opts.border) cell.border = opts.border;
+}
+
+function buildSheet1(workbook, rows){
+  const ws = workbook.addWorksheet('Sheet1');
+  const colLetters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y'];
+  const widths = [3.6,7.3,6.9,8.8,12.3,10.3, 8.8,10.3,8.8,10.3,8.8,10.3,8.8,10.3,8.8,12.6,8.8,12.0,8.8,10.3,8.8,10.3,8.8,10.3, 7.1];
+  colLetters.forEach((L,i)=>{ ws.getColumn(L).width = widths[i]; });
+  ws.getRow(1).height = 39; ws.getRow(2).height = 57; ws.getRow(3).height = 15;
+  ws.getRow(4).height = 77; ws.getRow(5).height = 48;
+
+  // Row 1 — weightage (merged over each question's 2 columns)
+  QUESTIONS.forEach((q,j)=>{
+    const c = colLetters[6 + j*2], c2 = colLetters[7 + j*2];
+    ws.mergeCells(`${c}1:${c2}1`);
+    const cell = ws.getCell(`${c}1`);
+    cell.value = q.w;
+    styleCell(cell, {font:{bold:true}, fillColor:'FFDEE6EF', align:CENTER_WRAP, border:borderAll(THIN)});
+  });
+
+  // Row 2 — fixed labels (merged rows 2-4) + categories (merged 2 cols) + Total Scores (merged Y2:Y5)
+  const fixedLabels = ['S.No.','QA Name','Location','Call Audit Date','Name','Profile ID'];
+  fixedLabels.forEach((label,i)=>{
+    const L = colLetters[i];
+    ws.mergeCells(`${L}2:${L}4`);
+    const cell = ws.getCell(`${L}2`);
+    cell.value = label;
+    styleCell(cell, {font:{bold:true}, fillColor:'FF33CCCC', align:CENTER_WRAP, border:{top:HAIR,bottom:HAIR}});
+  });
+  QUESTIONS.forEach((q,j)=>{
+    const c = colLetters[6 + j*2], c2 = colLetters[7 + j*2];
+    ws.mergeCells(`${c}2:${c2}2`);
+    const cell = ws.getCell(`${c}2`);
+    cell.value = q.cat;
+    styleCell(cell, {fillColor:'FFFAC090', align:CENTER_WRAP, border:{top:HAIR,bottom:HAIR}});
+  });
+  ws.mergeCells('Y2:Y5');
+  styleCell(ws.getCell('Y2'), {fillColor:'FFFAC090', align:CENTER_WRAP, border:{top:HAIR}});
+  ws.getCell('Y2').value = 'Total Scores';
+
+  // Row 3 — question text (merged rows 3-4, over each question's 2 columns)
+  QUESTIONS.forEach((q,j)=>{
+    const c = colLetters[6 + j*2], c2 = colLetters[7 + j*2];
+    ws.mergeCells(`${c}3:${c2}4`);
+    const cell = ws.getCell(`${c}3`);
+    cell.value = q.text;
+    styleCell(cell, {fillColor:'FF00B0F0', align:CENTER_WRAP, border:{top:HAIR,bottom:HAIR}});
+  });
+
+  // Row 5 — sub-headers (Reason Description / Reason Comments) + teal continuation under fixed cols
+  fixedLabels.forEach((label,i)=>{
+    const L = colLetters[i];
+    styleCell(ws.getCell(`${L}5`), {fillColor:'FF33CCCC', align:CENTER_WRAP, border:{top:HAIR}});
+  });
+  QUESTIONS.forEach((q,j)=>{
+    const c = colLetters[6 + j*2], c2 = colLetters[7 + j*2];
+    const descCell = ws.getCell(`${c}5`), commentCell = ws.getCell(`${c2}5`);
+    descCell.value = 'Reason Description';
+    commentCell.value = 'Reason Comments';
+    styleCell(descCell, {fillColor:'FFD7E4BD', align:CENTER_WRAP, border:{top:HAIR}});
+    styleCell(commentCell, {fillColor:'FFEBF1DE', align:CENTER_WRAP, border:{top:HAIR}});
+  });
+
+  // Data rows
+  rows.forEach((s, i)=>{
+    const r = 6 + i;
+    const sNoCell = ws.getCell(`A${r}`); sNoCell.value = i+1;
+    styleCell(sNoCell, {align:CENTER, border:borderAll(HAIR)});
+    const vals = [s.qaName, s.location, fmtDate(s.auditDate), s.agentName, s.profileId];
+    ['B','C','D','E','F'].forEach((L,idx)=>{
+      const cell = ws.getCell(`${L}${r}`);
+      cell.value = vals[idx];
+      styleCell(cell, {font:{size:10}, align:CENTER, border:borderAll(HAIR)});
+      if(L==='D') cell.numFmt = 'dd-mm-yyyy';
+    });
+    QUESTIONS.forEach((q,j)=>{
+      const c = colLetters[6 + j*2], c2 = colLetters[7 + j*2];
+      const ansCell = ws.getCell(`${c}${r}`), cmtCell = ws.getCell(`${c2}${r}`);
+      ansCell.value = s.answers[j] || '';
+      cmtCell.value = s.reasons[j] || '';
+      styleCell(ansCell, {font:{size:10}, align:CENTER, border:borderAll(HAIR)});
+      styleCell(cmtCell, {font:{size:10}, align:CENTER_WRAP, border:borderAll(HAIR)});
+    });
+    const scoreCell = ws.getCell(`Y${r}`);
+    scoreCell.value = s.score;
+    styleCell(scoreCell, {align:CENTER, border:borderAll(HAIR)});
+  });
+
+  return ws;
+}
+
+function buildSheet2(workbook, rows){
+  const ws = workbook.addWorksheet('Sheet2');
+  const headers = ['Advisor','Call Audit Date','Location','QA Name','Score','Remark'];
+  const widths = [12.4, 8.9, 6.8, 8.5, 5.1, 11.2];
+  ['A','B','C','D','E','F'].forEach((L,i)=>{ ws.getColumn(L).width = widths[i]; });
+  ws.getRow(1).height = 36;
+  headers.forEach((h,i)=>{
+    const cell = ws.getCell(1, i+1);
+    cell.value = h;
+    styleCell(cell, {font:{size:10, bold:true, color:{argb:'FF500050'}}, fillColor:'FFF9CB9C', align:CENTER, border:{bottom:THIN}});
+  });
+  rows.forEach((s,i)=>{
+    const r = i+2;
+    ws.getRow(r).height = 18;
+    const remark = s.score>=80 ? 'Certified' : (s.attempt===1 ? 'Re - Certification' : 'Not Certified');
+    const rowVals = [s.agentName, fmtDate(s.auditDate), s.location, s.qaName, s.score, remark];
+    rowVals.forEach((v,ci)=>{
+      const cell = ws.getCell(r, ci+1);
+      cell.value = v;
+      styleCell(cell, {font:{size:10}, align:CENTER, border:{bottom:THIN}});
+      if(ci===1) cell.numFmt = 'dd-mm-yyyy';
+    });
+  });
+  return ws;
+}
+
+async function downloadOriginalFormatReport(){
+    if(typeof ExcelJS === 'undefined'){ 
+        showToast('Excel library failed to load — try again.'); 
+        return; 
+    }
+    if(submissions.length === 0){ 
+        showToast('No responses to export yet.'); 
+        return; 
+    }
+    const filterId = document.getElementById('filterProject').value;
+    const rows = filterId ? submissions.filter(s => s.projectId === filterId) : submissions;
+    if(rows.length === 0){ 
+        showToast('No responses for this project yet.'); 
+        return; 
+    }
+
+    const btn = document.getElementById('downloadBtn');
+    btn.disabled = true;
+    try {
+        const workbook = new ExcelJS.Workbook();
+        buildSheet1(workbook, rows);
+        buildSheet2(workbook, rows);
+        
+        const buf = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        
+        // Trigger browser file download
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const projLabel = filterId ? (projects.find(p => p.id === filterId)?.name || 'Project') : 'All_Projects';
+        a.download = `NHT_Certification_${projLabel.replace(/[^a-z0-9]+/gi, '_')}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        showToast('Report downloaded successfully.');
+    } catch(e) {
+        console.error(e);
+        showToast('Could not build the file — try again.');
+    }
+    btn.disabled = false;
+}
+
+// ---------- init ----------
+(async function init(){
+  buildQuestionCards();
+  await initCapabilities();
+  await loadAll();
+  document.getElementById('auditDate').valueAsDate = new Date();
+})();
+</script>
+</body>
+</html>
