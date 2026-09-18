@@ -328,14 +328,14 @@ async function initCapabilities(){
 
 async function loadAll(){
     try {
-        const projRes = await fetch('http://localhost:8000/api/projects');
+        const projRes = await fetch('https://nht-xizw.onrender.com/api/projects');
         projects = await projRes.json();
     } catch(e) {
         projects = [];
     }
 
     try {
-        const subRes = await fetch('http://localhost:8000/api/submissions');
+        const subRes = await fetch('https://nht-xizw.onrender.com/api/submissions');
         submissions = await subRes.json();
     } catch(e) {
         submissions = [];
@@ -351,7 +351,7 @@ async function loadAll(){
 
 async function saveProjects(projectData){
     try {
-        await fetch('http://localhost:8000/api/projects', {
+        await fetch('https://nht-xizw.onrender.com/api/projects', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(projectData || projects[projects.length - 1])
@@ -365,7 +365,7 @@ async function saveSubmissions(){
     if(submissions.length === 0) return;
     const latestSub = submissions[submissions.length - 1];
     try {
-        await fetch('http://localhost:8000/api/submissions', {
+        await fetch('https://nht-xizw.onrender.com/api/submissions', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(latestSub)
@@ -664,7 +664,7 @@ function renderResponses(){
 async function clearAllData(){
     if(!confirm('This deletes all submitted responses from the database. Continue?')) return;
     try {
-        await fetch('http://localhost:8000/api/submissions', { method: 'DELETE' });
+        await fetch('https://nht-xizw.onrender.com/api/submissions', { method: 'DELETE' });
         submissions = [];
         renderResponses();
         showToast('All data cleared.');
